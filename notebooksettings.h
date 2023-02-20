@@ -37,6 +37,10 @@ public:
         background-color: rgb(45, 45, 45);\
         color: rgb(240, 240, 240);\
     }\
+    QStatusBar{\
+        background-color: rgb(45, 45, 45);\
+        color: rgb(240, 240, 240);\
+    }\
     QLabel{\
         color: rgb(240, 240, 240);\
     }\
@@ -54,6 +58,10 @@ public:
     color: rgb(45, 45, 45);\
     }\
     QMainWindow{\
+        background-color: rgb(240, 240, 240);\
+        color: rgb(45, 45, 45);\
+    }\
+    QStatusBar{\
         background-color: rgb(240, 240, 240);\
         color: rgb(45, 45, 45);\
     }\

@@ -18,28 +18,28 @@ class DialogFind : public QDialog
 
 public:
     explicit DialogFind(QWidget *parent = nullptr);
-    DialogFind(QString query, QWidget *parent = nullptr);
+    DialogFind(QString query, QWidget *parent = nullptr); //Конструктор, с инициализацией данных для поиска
     ~DialogFind();
 
 signals:
-    void sendData(QString query, QTextDocument::FindFlags flags = QTextDocument::FindFlags());
-    void onDelete();
+    void sendData(QString query, QTextDocument::FindFlags flags = QTextDocument::FindFlags()); //отправить данные для поиска
+    void onDelete(); //сообщить об удалении класса (DiaflogFind)
 
 private slots:
-    void on_pushButton_search_futrher_clicked();
+    void on_pushButton_search_futrher_clicked(); //Найти далее
 
-    void on_checkBox_case_sensetive_stateChanged(int arg1);
+    void on_checkBox_case_sensetive_stateChanged(int arg1); //Установить флаг учёт регистра
 
-    void on_radioButton_down_clicked();
+    void on_radioButton_down_clicked(); //Установить флаг найти вниз
 
-    void on_radioButton_up_clicked();
+    void on_radioButton_up_clicked(); //Найти вверх
 
-    void on_cancel_clicked();
+    void on_cancel_clicked(); //Отмена (закрытие диалога)
 
 private:
     Ui::DialogFind *ui;
     QString query;
-    QTextDocument::FindFlags flags = QTextDocument::FindFlags();
+    QTextDocument::FindFlags flags = QTextDocument::FindFlags(); //Флаги для поиска
 };
 
 #endif // DIALOGFIND_H

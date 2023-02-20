@@ -1,7 +1,6 @@
- <!DOCTYPE RCC><RCC version="1.0">
- <qresource prefix="/myresources">
-     <file alias="main.png">main.png</file>
-     <file alias="self.png">self.png</file>
-     <file alias="iri.jpg">iri.jpg</file>
- </qresource>
- </RCC>
+<RCC>
+    <qresource prefix="/myresources">
+        <file alias="self.png">self.png</file>
+        <file alias="iri.jpg">iri.jpg</file>
+    </qresource>
+</RCC>

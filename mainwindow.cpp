@@ -13,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    this->stateString = new QLabel; //строку стостояния в статусбар
+    stateString->setText("Стр 1 стлб 1");
+    stateString->setFont(QFont("Segoe UI", 10));
+    ui->statusBar->addPermanentWidget(stateString);
+
     this->setWindowTitle("Безымянный.txt");
     this->setWindowIcon(QIcon(":/ico/note.ico"));
 
@@ -34,6 +40,7 @@ MainWindow::~MainWindow()
 {
     delete Settings;
     delete ui;
+    delete stateString;
     if (this->dialog != nullptr)
     {
         delete this->dialog;
@@ -87,7 +94,11 @@ void MainWindow::loadTheme(NotebookSettings::Themes theme) //загрузка sh
             styleSheet = WHITE_THEME;
             break;
     }
-    QWidget::setStyleSheet(styleSheet);
+    this->setStyleSheet(styleSheet);
+    if (this->stateString != nullptr)
+    {
+        this->stateString->setStyleSheet(styleSheet);
+    }
 }
 
 void MainWindow::saveToTextFileUTF8() //запись текста в UTF8 из TextEdit в файл по пути path
@@ -397,12 +408,19 @@ void MainWindow::on_textEdit_cursorPositionChanged() //Событие измен
         int col = cursor.columnNumber() + 1; //номер колонки
         int str = cursor.blockNumber() + 1; //номер строки
         int selected = abs(cursor.selectionEnd() - cursor.selectionStart()); //Количество выделенных символов
-        state = "Стр " + QString::number(str) + " стлб " + QString::number(col) + "   " + QString::number(selected) + " символов выделено";
-        ui->cursor_state_label->setText(state);
+        if (selected != 0)
+        {
+            state = "Стр " + QString::number(str) + " стлб " + QString::number(col) + "   " + QString::number(selected) + " выделено";;
+        }
+        else
+        {
+            state = "Стр " + QString::number(str) + " стлб " + QString::number(col);
+        }
+        this->stateString->setText(state);
     }
 }
 
-void MainWindow::on_textEdit_selectionChanged()
+void MainWindow::on_textEdit_selectionChanged() //Изменение текущего выделения
 {
     if (!(this->flags & 8)) //если событие разблокировано
     {
@@ -411,11 +429,15 @@ void MainWindow::on_textEdit_selectionChanged()
         int col = cursor.columnNumber() + 1; //номер колонки
         int str = cursor.blockNumber() + 1; //номер строки
         int selected = abs(cursor.selectionEnd() - cursor.selectionStart()); //Количество выделенных символов
-        state = "Стр " + QString::number(str) + " стлб " + QString::number(col) + "   " + QString::number(selected) + " символов выделено";
-        ui->cursor_state_label->setText(state);
 
         if (selected == 0) //если не выделено не одного элемента
         {
+            if (!lastSelectedCharactersCountIsNull)
+            {
+                state = "Стр " + QString::number(str) + " стлб " + QString::number(col); //меняем строку состояния
+                this->lastSelectedCharactersCountIsNull = true;
+                this->stateString->setText(state);
+            }
             if (!(flags & 32)) //если изменилось состояние выделения (было выделено > 0 символов), а теперь 0
             {
                 this->setEnabledMenuActions(32); //поменять активность кнопок меню
@@ -424,6 +446,11 @@ void MainWindow::on_textEdit_selectionChanged()
         }
         else //если выделены элементы
         {
+            this->lastSelectedCharactersCountIsNull = false;
+            state = "Стр " + QString::number(str) + " стлб " + QString::number(col) + "   " + QString::number(selected) + " выделено"; //меняем строку состояния
+            this->stateString->setText(state);
+            this->stateString->repaint();
+
             if (flags & 32) //если изменилось состояние выделения (было выделено > 0 символов), а теперь 0
             {
                 this->setEnabledMenuActions(32); //поменять активность кнопок меню
@@ -443,13 +470,12 @@ void MainWindow::setStateStringActive(bool flag) //Изменить Отобра
     if (flag) //показать строку состояния
     {
         this->flags = this->flags & (FLAGS_SIZE - 8); //разблокировать событие обработки изменения положения курсора
-        ui->cursor_state_label->show(); //показать строку состояния
-//        ui->cursor_state_label->setVisible(true);
+        ui->statusBar->show();
     }
     else //спрятать строку состояния
     {
         this->flags = this->flags | 8; //заблокировать событие
-        ui->cursor_state_label->hide(); //спрятать
+        ui->statusBar->hide();
     }
     this->Settings->setNotebookStateString(flag); //Изменить наличие галочки на QAction Menu_State_String
     ui->Menu_State_String_Visible_Change->setChecked(flag);
@@ -546,7 +572,7 @@ void MainWindow::on_Menu_Search_triggered() //Меню Найти
 }
 
 
-void MainWindow::on_Menu_Search_Further_triggered()
+void MainWindow::on_Menu_Search_Further_triggered() //Меню Найти Далее
 {
     if (this->findQuery != "") //Если уже был некий непустой запрос и есть что искать
     {
@@ -563,7 +589,7 @@ void MainWindow::on_Menu_Search_Further_triggered()
 }
 
 
-void MainWindow::on_Menu_Search_Previously_triggered() //Найти Ранее
+void MainWindow::on_Menu_Search_Previously_triggered() //Меню Найти Ранее
 {
     if (this->findQuery != "") //Если уже был некий непустой запрос и есть что искать
     {

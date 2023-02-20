@@ -14,6 +14,7 @@
 #include <QInputDialog>
 #include <dialogfind.h>
 #include <QDateTime>
+#include <QLabel>
 
 #include <limits.h>
 #include <iostream>
@@ -31,91 +32,95 @@ public:
     ~MainWindow();
 
 public slots:
-    void recieveData(QString query, QTextDocument::FindFlags flags);
+    void recieveData(QString query, QTextDocument::FindFlags flags); //Получить данные для поиска выражения от диалога поиска
 
-    void recieveOnDelete();
+    void recieveOnDelete(); //получить сигнал о закрытии диалога поиска
 
 private slots:
 
-    void on_Menu_Open_triggered();
+    void on_Menu_Open_triggered(); //Меню открыть
 
-    void on_Menu_Save_As_triggered();
+    void on_Menu_Save_As_triggered(); //Меню Сохранить как
 
-    void closeEvent(QCloseEvent *event); //обработчик события закрытия программы
+    void closeEvent(QCloseEvent *event); //Обработчик события закрытия программы
 
-    void on_Menu_Save_triggered();
+    void on_Menu_Save_triggered(); //Меню сохранить
 
-    void on_textEdit_textChanged();
+    void on_textEdit_textChanged(); //Текст редактора изменён
 
-    void on_Menu_Create_triggered();
+    void on_Menu_Create_triggered(); //Меню создать
 
-    void on_Menu_Exit_triggered();
+    void on_Menu_Exit_triggered(); //Меню выйти
 
-    void on_Menu_Fonts_triggered();
+    void on_Menu_Fonts_triggered(); //Меню выбор шрифта
 
-    void on_Menu_Set_Black_Theme_triggered();
+    void on_Menu_Set_Black_Theme_triggered(); //Меню установить тёмную тему
 
-    void on_Menu_Set_White_Theme_triggered();
+    void on_Menu_Set_White_Theme_triggered(); //Меню установить светлую тему
 
-    void on_textEdit_cursorPositionChanged();
+    void on_textEdit_cursorPositionChanged(); //Позиция курсора изменена
 
-    void on_Menu_State_String_Visible_Change_triggered();
+    void on_Menu_State_String_Visible_Change_triggered(); //Меню изменить видимость строки состояния
 
-    void on_Menu_Create_New_Window_triggered();
+    void on_Menu_Create_New_Window_triggered(); //Меню создать новое окно
 
-    void on_Menu_About_triggered();
+    void on_Menu_About_triggered(); //Меню о программе
 
-    void on_Menu_Redo_triggered();
+    void on_Menu_Redo_triggered(); //Меню отменить
 
-    void on_Menu_Cut_triggered();
+    void on_Menu_Cut_triggered(); //Меню вырезать
 
-    void on_Menu_Copy_triggered();
+    void on_Menu_Copy_triggered(); //Меню копировать
 
-    void on_Menu_Paste_triggered();
+    void on_Menu_Paste_triggered(); //Меню вставить
 
-    void on_Menu_Remove_triggered();
+    void on_Menu_Remove_triggered(); //Меню удалить
 
-    void on_Menu_Search_By_Bing_triggered();
+    void on_Menu_Search_By_Bing_triggered(); //Меню поиск с помощью Bing
 
-    void on_Menu_Search_triggered();
+    void on_Menu_Search_triggered(); //Меню найти
 
-    void on_Menu_Search_Further_triggered();
+    void on_Menu_Search_Further_triggered(); //Меню найти далее
 
-    void on_Menu_Search_Previously_triggered();
+    void on_Menu_Search_Previously_triggered(); //Меню найти ранее
 
-    void on_Menu_Go_To_triggered();
+    void on_Menu_Go_To_triggered(); //Меню перейти на строку
 
-    void on_Menu_Select_All_triggered();
+    void on_Menu_Select_All_triggered(); //Меню выбрать всё
 
-    void on_Menu_DateTime_triggered();
+    void on_Menu_DateTime_triggered(); //Меню дата и время
 
-    void on_textEdit_selectionChanged();
+    void on_textEdit_selectionChanged(); //Выделение изменено
 
 private:
     Ui::MainWindow *ui;
 
-    QString path;
-    QString fileName;
+    QString path; //путь до последнего файла
+    QString fileName; //имя последнего файла
 
-    QString dirPath = QDir::currentPath();
+    QString dirPath = QDir::currentPath(); //Путь до текущей папки для определённости
 
-    QString findQuery = "";
+    QString findQuery = ""; //Последний поисковый запрос
 
-    void saveToTextFileUTF8();
+    QLabel *stateString = nullptr; //Строка состояния
 
-    bool saveDocument();
+    void saveToTextFileUTF8(); //Сохранить текстовый файл с информацией из TextEdit
 
-    bool saveDocumentAs();
+    bool saveDocument(); //Сохранить документ
 
-    bool saveDecorator(bool (MainWindow::*saveFunction) ());
+    bool saveDocumentAs(); //Сохранить документ как
 
-    void loadTheme(NotebookSettings::Themes theme);
+    bool saveDecorator(bool (MainWindow::*saveFunction) ()); //Обёртка для методов сохранения
 
-    void setStateStringActive(bool flag);
+    void loadTheme(NotebookSettings::Themes theme); //Применить тему для блокнота
 
-    void setEnabledMenuActions(int modifiedFlags);
+    void setStateStringActive(bool flag); //Изменить отображение строки состояния
 
-    int checkSave();
+    void setEnabledMenuActions(int modifiedFlags); //Изменить активность кнопок меню в зависимости от текущего состояния документа (символов нет, текст выделен)
+
+    int checkSave(); //Проверка, модифицирован ли файл, если да, то будет ли пользователь его сохранять, при проверке вызывает QMessageBox
+
+    bool lastSelectedCharactersCountIsNull = true; //В момент последнего выделения было ли выделено 0 символов
 
     /*
     32 bool flags
@@ -129,9 +134,9 @@ private:
     */
     unsigned __int8 flags = 2 + 16 + 32;
 
-    NotebookSettings *Settings;
+    NotebookSettings *Settings; //Настройки блокнота
 
-    DialogFind *dialog = nullptr;
+    DialogFind *dialog = nullptr; //Диалог для поиска
 
 #define FLAGS_SIZE (UINT8_MAX)
 };
