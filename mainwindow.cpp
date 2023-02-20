@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     stateString->setFont(QFont("Segoe UI", 10));
     ui->statusBar->addPermanentWidget(stateString);
 
-    this->setWindowTitle("Безымянный.txt");
+    this->setWindowTitle("Безымянный.txt - Блокнот");
     this->setWindowIcon(QIcon(":/ico/note.ico"));
 
     this->Settings = new NotebookSettings; //создаём экземпляр класса настроек
@@ -169,7 +169,7 @@ bool MainWindow::saveDecorator(bool (MainWindow::*saveFunction) ()) //декор
     if (result)
     {
         this->flags = this->flags & (FLAGS_SIZE - 1);
-        this->setWindowTitle(fileName);
+        this->setWindowTitle(fileName + " - Блокнот");
 
         this->flags = this->flags & (FLAGS_SIZE - 2);
     }
@@ -266,7 +266,7 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
 
         this->fileName = path.section('/', -1); //выделение имя файла
 
-        this->setWindowTitle(fileName);
+        this->setWindowTitle(fileName + " - Блокнот");
 
         //работа с файлом
         file.setFileName(path); //связываем с файлом на диске
@@ -320,11 +320,11 @@ void MainWindow::on_textEdit_textChanged() //Событие изменения �
         {
             if (flags & 2) //Если файл создан и не имеет собственного названия
             {
-               this->setWindowTitle("*Безымянный.txt");
+               this->setWindowTitle("*Безымянный.txt - Блокнот");
             }
             else //Если файл имеет собственное название
             {
-                this->setWindowTitle("*" + this->fileName);
+                this->setWindowTitle("*" + this->fileName + " - Блокнот");
             }
             this->flags = flags | 1; //Зафиксировать то, что файл изменён
         }
@@ -332,7 +332,7 @@ void MainWindow::on_textEdit_textChanged() //Событие изменения �
         {
             if ((flags & 16) and (flags & 2)) //Если файл создан, не имеет собственного названия и пуст
             {
-                this->setWindowTitle("Безымянный.txt");
+                this->setWindowTitle("Безымянный.txt - Блокнот");
                 this->flags = (flags | 16) & (FLAGS_SIZE - 1);
             }
         }
@@ -365,7 +365,7 @@ void MainWindow::on_Menu_Create_triggered() //Меню Создать
     this->fileName.clear();
     this->path.clear();
     ui->textEdit->clear();
-    this->setWindowTitle("Безымянный.txt");
+    this->setWindowTitle("Безымянный.txt - Блокнот");
 
 
     this->flags = this->flags & (FLAGS_SIZE - 4); //разблокировка обработки событий изменения текста в TextEdt

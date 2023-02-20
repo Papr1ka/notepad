@@ -32,6 +32,7 @@ public:
     QTextEdit{\
     background-color: rgb(45, 45, 45);\
     color: rgb(240, 240, 240);\
+    selection-background-color: rgb(201, 73, 180);\
     }\
     QMainWindow{\
         background-color: rgb(45, 45, 45);\
@@ -56,6 +57,7 @@ public:
     QTextEdit{\
     background-color: rgb(240, 240, 240);\
     color: rgb(45, 45, 45);\
+    selection-background-color: rgb(201, 73, 180);\
     }\
     QMainWindow{\
         background-color: rgb(240, 240, 240);\
