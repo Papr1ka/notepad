@@ -175,8 +175,15 @@ bool MainWindow::saveDecorator(bool (MainWindow::*saveFunction) ()) //декор
 
 bool MainWindow::saveDocumentAs() //сохранить документ как true, если успешно
 {
-    QString path;
-    path = QFileDialog::getSaveFileName(this, tr("Сохранить как"), dirPath, tr("Text files (*.txt)"));
+    if (path != "")
+    {
+        this->path = QFileDialog::getSaveFileName(this, tr("Сохранить как"), path, tr("Text files (*.txt)"));
+    }
+    else
+    {
+        this->path = QFileDialog::getSaveFileName(this, tr("Сохранить как"), dirPath, tr("Text files (*.txt)"));
+    }
+
 
     if (path.isEmpty()) //Файл не выбран
     {
@@ -185,8 +192,6 @@ bool MainWindow::saveDocumentAs() //сохранить документ как t
     }
     else
     {
-        this->path = path; //запоминание пути до сохранённого файла
-
         this->saveToTextFileUTF8(); //сохранение в файл
 
         this->fileName = path.section('/', -1); //отделение имени файла

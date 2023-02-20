@@ -141,7 +141,7 @@
        <enum>QTextEdit::FixedColumnWidth</enum>
       </property>
       <property name="lineWrapColumnOrWidth">
-       <number>1000</number>
+       <number>1024</number>
       </property>
      </widget>
     </item>
