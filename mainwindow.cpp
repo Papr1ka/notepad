@@ -48,7 +48,7 @@ void MainWindow::recieveData(QString query, QTextDocument::FindFlags flags) //С
     bool finded = ui->textEdit->find(query, flags);
     if (not finded)
     {
-        QMessageBox::information(this, "Блокнот", QString("Не удаётся найти \"") + query + "\"");
+        QMessageBox::information(this->dialog, "Блокнот", QString("Не удаётся найти \"") + query + "\"");
     }
 }
 
