@@ -30,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         this->setStateStringActive(Settings->getNotebookStateString());
     }
-
     this->loadTheme(this->Settings->getNotebookTheme());
     this->setEnabledMenuActions(16 + 32); //По умолчанию кнопки меню не активны
 }
@@ -89,9 +88,13 @@ void MainWindow::loadTheme(NotebookSettings::Themes theme) //загрузка sh
     switch (theme) {
         case NotebookSettings::Black:
             styleSheet = BLACK_THEME;
+            ui->Menu_Set_White_Theme->setChecked(false);
+            ui->Menu_Set_Black_Theme->setChecked(true);
             break;
         case NotebookSettings::White:
             styleSheet = WHITE_THEME;
+            ui->Menu_Set_Black_Theme->setChecked(false);
+            ui->Menu_Set_White_Theme->setChecked(true);
             break;
     }
     this->setStyleSheet(styleSheet);
@@ -175,23 +178,25 @@ bool MainWindow::saveDecorator(bool (MainWindow::*saveFunction) ()) //декор
 
 bool MainWindow::saveDocumentAs() //сохранить документ как true, если успешно
 {
+    QString pretenderToPath;
     if (path != "")
     {
-        this->path = QFileDialog::getSaveFileName(this, tr("Сохранить как"), path, tr("Text files (*.txt)"));
+        pretenderToPath = QFileDialog::getSaveFileName(this, tr("Сохранить как"), path, tr("Text files (*.txt)"));
     }
     else
     {
-        this->path = QFileDialog::getSaveFileName(this, tr("Сохранить как"), dirPath, tr("Text files (*.txt)"));
+        pretenderToPath = QFileDialog::getSaveFileName(this, tr("Сохранить как"), dirPath, tr("Text files (*.txt)"));
     }
 
 
-    if (path.isEmpty()) //Файл не выбран
+    if (pretenderToPath.isEmpty()) //Файл не выбран
     {
 //        QMessageBox::information(this, "Ошибка", "Файл не выбран"); ёпрст
         return false;
     }
     else
     {
+        this->path = pretenderToPath;
         this->saveToTextFileUTF8(); //сохранение в файл
 
         this->fileName = path.section('/', -1); //отделение имени файла
@@ -223,7 +228,7 @@ bool MainWindow::saveDocument() //авто выбор способа сохра�
 
 void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
 {
-    QString path; //путь до файла
+    QString pretenderToPath; //путь до файла
 
     int check = this->checkSave();
 
@@ -240,18 +245,17 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
             break;
     }
 
-    path = QFileDialog::getOpenFileName(this, tr("Открыть файл"), "C:\\Users\\student.A-424\\Documents", tr("Text files (*.txt)"));
+    pretenderToPath = QFileDialog::getOpenFileName(this, tr("Открыть файл"), "C:\\Users\\student.A-424\\Documents", tr("Text files (*.txt)"));
 
-    if (path.isEmpty()) //Файл не выбран, сброс пути до файла и имени файла
+    if (pretenderToPath.isEmpty()) //Файл не выбран
     {
 //        QMessageBox::information(this, "Ошибка", "Файл не выбран"); //не будем душить тем, что он итак понял ёпрст
-        this->path.clear();
-        this->fileName.clear();
+        return;
     }
     else
     {
         //подготовка
-
+        this->path = pretenderToPath; //запоминание пути до файла
         this->flags = this->flags & (FLAGS_SIZE - 2); //убрать флаг документ создан
         this->flags = this->flags & (FLAGS_SIZE - 1); //убрать флаг документ изменён
         this->flags = this->flags | 4; //заблокировать обработку события изменения текста в TextEdt
@@ -260,7 +264,6 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
         ui->textEdit->clear(); //очистка поля редактора
         QFile file; //файл
 
-        this->path = path; //запоминание пути до файла
         this->fileName = path.section('/', -1); //выделение имя файла
 
         this->setWindowTitle(fileName);
@@ -535,13 +538,13 @@ void MainWindow::on_Menu_Search_By_Bing_triggered() //Поиск При Помо
 {
     QTextCursor test = ui->textEdit->textCursor();
     QString query;
-    query = "http://www.google.com/search?q=" + test.selectedText(); //Запрос
+    query = "https://www.bing.com/search?q=" + test.selectedText(); //Запрос
     int length = query.length();
     char charList[query.length()];
 
     for (int i = 0; i < length; i++)
     {
-        charList[i] = static_cast<char>(query.at(i).cell()); //Преобразование запроса в Char list
+        charList[i] = static_cast<char>(query.at(i).toLatin1()); //Преобразование запроса в Char list
     }
 
     ShellExecuteA(0, "open", charList, NULL, NULL, SW_SHOWDEFAULT); //Открыть браузер
@@ -624,15 +627,15 @@ void MainWindow::on_Menu_Go_To_triggered() //Меню Перейти
             QTextCursor cursor;
             cursor = ui->textEdit->textCursor(); //Копия текущего курсора
 
-            int diff = value - cursor.blockNumber() - 1; //сколько нужно идти строк от строки курсора до нужной
+            int diff = cursor.blockNumber() + 1 - value; //сколько нужно идти строк от строки курсора до нужной
 
-            if (diff >= 0) //если идти вперёд
+            if (diff >= 0) //если идти назад
             {
-                cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, value - cursor.blockNumber());
+                cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor, diff);
             }
-            else //если идти назад
+            else //если идти вперёд
             {
-                cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor, value - cursor.blockNumber());
+                cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, -diff);
             }
 
             ui->textEdit->setTextCursor(cursor); //Установка курсора

@@ -6,7 +6,7 @@ DialogAbout::DialogAbout(QWidget *parent) :
     ui(new Ui::DialogAbout)
 {
     ui->setupUi(this);
-    this->setWindowTitle("Найти");
+    this->setWindowTitle("О программе");
 }
 
 DialogAbout::~DialogAbout()

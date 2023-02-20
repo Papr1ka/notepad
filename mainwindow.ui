@@ -284,6 +284,9 @@
    </property>
   </action>
   <action name="Menu_Set_Black_Theme">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Тёмная</string>
    </property>
@@ -292,6 +295,9 @@
    </property>
   </action>
   <action name="Menu_Set_White_Theme">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Светлая</string>
    </property>
