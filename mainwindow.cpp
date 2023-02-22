@@ -49,6 +49,11 @@ MainWindow::~MainWindow()
 
 void MainWindow::recieveData(QString query, QTextDocument::FindFlags flags) //Строка для поиска и Флаги для поиска из диалога
 {
+    if (!(flags & QTextDocument::FindFlag::FindCaseSensitively))
+    {
+        query = query.toLower();
+    }
+
     this->findQuery = query;
 
     bool finded = ui->textEdit->find(query, flags);
@@ -60,7 +65,6 @@ void MainWindow::recieveData(QString query, QTextDocument::FindFlags flags) //С
 
 void MainWindow::recieveOnDelete() //слот обработки сигнала onDelete от диалога поиска выражения в TextEdit
 {
-    cout << "need to delete" << endl;
     this->dialog = nullptr;
 }
 
@@ -116,9 +120,20 @@ void MainWindow::saveToTextFileUTF8() //запись текста в UTF8 из T
 
 int MainWindow::checkSave() //проверка, модифицирован ли файл, если да, то будет ли пользователь его сохранять
 {
+    QString displayPath;
+
+    if (path.isEmpty())
+    {
+        displayPath = "Безымянный.txt";
+    }
+    else
+    {
+        displayPath = path;
+    }
+
     if (this->flags & 1)
     {
-        return QMessageBox::question(this, "Блокнот", QString("Вы хотите сохранить изменения в файле") + '"' + path + '"' + " ?", QMessageBox::Save | QMessageBox::Ignore | QMessageBox::Cancel, QMessageBox::Save);
+        return QMessageBox::question(this, "Блокнот", QString("Вы хотите сохранить изменения в файле ") + '"' + displayPath + '"' + " ?", QMessageBox::Save | QMessageBox::Ignore | QMessageBox::Cancel, QMessageBox::Save);
     }
     return QMessageBox::NoButton;
 }
@@ -128,13 +143,13 @@ void MainWindow::closeEvent(QCloseEvent *event) //обработка сигна�
 {
 
     int result = this->checkSave(); //защита от несохранённых изменений
-    bool saved = true;
+    bool isSaved = true;
     bool exit = false;
 
     switch (result)
     {
         case QMessageBox::Save:
-            saved = this->saveDecorator(&MainWindow::saveDocument);
+            isSaved = this->saveDecorator(&MainWindow::saveDocument);
             break;
         case QMessageBox::Cancel:
             event->ignore();
@@ -148,7 +163,7 @@ void MainWindow::closeEvent(QCloseEvent *event) //обработка сигна�
             exit = true;
             break;
     }
-    if (not saved) //если пользователь не смог сохранить, не выходить
+    if (!isSaved) //если пользователь не смог сохранить, не выходить
     {
         event->ignore();
     }
@@ -179,13 +194,13 @@ bool MainWindow::saveDecorator(bool (MainWindow::*saveFunction) ()) //декор
 bool MainWindow::saveDocumentAs() //сохранить документ как true, если успешно
 {
     QString pretenderToPath;
-    if (path != "")
+    if (!path.isEmpty())
     {
         pretenderToPath = QFileDialog::getSaveFileName(this, tr("Сохранить как"), path, tr("Text files (*.txt)"));
     }
     else
     {
-        pretenderToPath = QFileDialog::getSaveFileName(this, tr("Сохранить как"), dirPath, tr("Text files (*.txt)"));
+        pretenderToPath = QFileDialog::getSaveFileName(this, tr("Сохранить как"), dirPath + tr("//Безымянный"), tr("Text files (*.txt)"));
     }
 
 
@@ -206,7 +221,7 @@ bool MainWindow::saveDocumentAs() //сохранить документ как t
 
 bool MainWindow::saveDocument() //авто выбор способа сохранения (по старому пути, если файл был установлен или по новому (нужно выбрать при помощи сохранить как), если путь некорректен или не установлен
 {
-    if (path != "")
+    if (!path.isEmpty())
     {
         bool exists = QFile::exists(path);
         if (exists) //по старому пути
@@ -216,7 +231,6 @@ bool MainWindow::saveDocument() //авто выбор способа сохра�
         }
         else //по новому
         {
-            QMessageBox::information(this, "Блокнот", "Ошибка, путь к файлу не сушествует");
             return this->saveDocumentAs();
         }
     }
@@ -231,11 +245,12 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
     QString pretenderToPath; //путь до файла
 
     int check = this->checkSave();
+    bool isSaved = true;
 
     switch (check)
     {
         case QMessageBox::Save:
-            this->saveDecorator(&MainWindow::saveDocument);
+            isSaved = this->saveDecorator(&MainWindow::saveDocument);
             break;
         case QMessageBox::Cancel:
             return;
@@ -245,7 +260,12 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
             break;
     }
 
-    pretenderToPath = QFileDialog::getOpenFileName(this, tr("Открыть файл"), "C:\\Users\\student.A-424\\Documents", tr("Text files (*.txt)"));
+    if (!isSaved) //если сохранить не удалось
+    {
+        return;
+    }
+
+    pretenderToPath = QFileDialog::getOpenFileName(this, tr("Открыть файл"), dirPath, tr("Text files (*.txt)"));
 
     if (pretenderToPath.isEmpty()) //Файл не выбран
     {
@@ -343,17 +363,23 @@ void MainWindow::on_textEdit_textChanged() //Событие изменения �
 void MainWindow::on_Menu_Create_triggered() //Меню Создать
 {
     int result = this->checkSave(); //Защита от несохранённых изменений
+    bool isSaved = true;
 
     switch (result)
     {
         case QMessageBox::NoButton:
             break;
         case QMessageBox::Save:
-            this->saveDecorator(&MainWindow::saveDocument);
+            isSaved = this->saveDecorator(&MainWindow::saveDocument);
         case QMessageBox::Ignore:
             break;
         case QMessageBox::Cancel:
             return;
+    }
+
+    if (!isSaved)
+    {
+        return;
     }
 
     this->flags = this->flags | 4; //блокировка обработки событий изменения текста в TextEdt
@@ -563,7 +589,7 @@ void MainWindow::on_Menu_Search_triggered() //Меню Найти
         delete dialog;
     }
 
-    if (selectedText != "") //если пользователь уже выделил то, что хочет найти
+    if (!selectedText.isEmpty()) //если пользователь уже выделил то, что хочет найти
     {
         this->dialog = new DialogFind(selectedText);
     }
@@ -582,7 +608,7 @@ void MainWindow::on_Menu_Search_triggered() //Меню Найти
 
 void MainWindow::on_Menu_Search_Further_triggered() //Меню Найти Далее
 {
-    if (this->findQuery != "") //Если уже был некий непустой запрос и есть что искать
+    if (!this->findQuery.isEmpty()) //Если уже был некий непустой запрос и есть что искать
     {
         bool finded = ui->textEdit->find(findQuery); //Найти далее
         if (not finded) //Если не нашли
@@ -599,7 +625,7 @@ void MainWindow::on_Menu_Search_Further_triggered() //Меню Найти Дал
 
 void MainWindow::on_Menu_Search_Previously_triggered() //Меню Найти Ранее
 {
-    if (this->findQuery != "") //Если уже был некий непустой запрос и есть что искать
+    if (!this->findQuery.isEmpty()) //Если уже был некий непустой запрос и есть что искать
     {
         bool finded = ui->textEdit->find(findQuery, QTextDocument::FindFlag::FindBackward); //Найти ранее
         if (not finded) //Если не нашли
@@ -618,33 +644,47 @@ void MainWindow::on_Menu_Go_To_triggered() //Меню Перейти
 {
     QInputDialog dialog;
     bool isInt;
-    int value = dialog.getInt(this, "Переход на строку", "Номер строки:", 1, INT_MIN, INT_MAX, 1, &isInt);
-    if (isInt) //Если ввели число
+
+    bool needToContinue = true;
+
+    while (needToContinue)
     {
-        int lineCount = ui->textEdit->document()->lineCount(); //Число строк
-        if ((value <= lineCount) and (value > 0)) //Если ввели строку в диапазоне строк документа
+        int value = dialog.getInt(this, "Переход на строку", "Номер строки:", 1, 1, INT_MAX, 1, &isInt);
+        if (isInt) //Если ввели число
         {
-            QTextCursor cursor;
-            cursor = ui->textEdit->textCursor(); //Копия текущего курсора
-
-            int diff = cursor.blockNumber() + 1 - value; //сколько нужно идти строк от строки курсора до нужной
-
-            if (diff >= 0) //если идти назад
+            int lineCount = ui->textEdit->document()->lineCount(); //Число строк
+            if ((value <= lineCount) and (value > 0)) //Если ввели строку в диапазоне строк документа
             {
-                cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor, diff);
-            }
-            else //если идти вперёд
-            {
-                cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, -diff);
-            }
+                QTextCursor cursor;
 
-            ui->textEdit->setTextCursor(cursor); //Установка курсора
+                needToContinue = false;
+
+                cursor = ui->textEdit->textCursor(); //Копия текущего курсора
+
+                int diff = cursor.blockNumber() + 1 - value; //сколько нужно идти строк от строки курсора до нужной
+
+                if (diff >= 0) //если идти назад
+                {
+                    cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::MoveAnchor, diff);
+                }
+                else //если идти вперёд
+                {
+                    cursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, -diff);
+                }
+
+                ui->textEdit->setTextCursor(cursor); //Установка курсора
+            }
+            else
+            {
+                QMessageBox::information(this, "Блокнот - переход на строку", "Номер строки не соответствует не одному номеру строки в редакторе");
+            }
         }
         else
         {
-            QMessageBox::information(this, "Блокнот - переход на строку", "Номер строки не соответствует не одному номеру строки в редакторе");
+            needToContinue = false;
         }
     }
+
 }
 
 

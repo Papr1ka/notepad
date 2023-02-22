@@ -76,20 +76,23 @@ public:
 
     NotebookSettings();
 
+    //сеттеры
     void setNotebookFont(QFont font);
     void setNotebookTheme(NotebookSettings::Themes theme);
     void setNotebookStateString(bool flag);
 
-    QString getSettingNameFromEnum(NotebookSettings::Settings setting);
-
+    //геттеры
     QFont getNotebookFont();
     NotebookSettings::Themes getNotebookTheme();
     bool getNotebookStateString();
 
 private:
+
     void createSettingsFile(QString absPath);
 
     void setNotebookSetting(NotebookSettings::Settings setting, QString value);
+
+    QString getSettingNameFromEnum(NotebookSettings::Settings setting);
 
     QString getNotebookSetting(NotebookSettings::Settings setting);
 

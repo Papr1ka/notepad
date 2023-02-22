@@ -26,7 +26,7 @@ signals:
     void onDelete(); //сообщить об удалении класса (DiaflogFind)
 
 private slots:
-    void on_pushButton_search_futrher_clicked(); //Найти далее
+    void on_pushButton_search_further_clicked(); //Найти далее
 
     void on_checkBox_case_sensetive_stateChanged(int arg1); //Установить флаг учёт регистра
 
@@ -35,6 +35,8 @@ private slots:
     void on_radioButton_up_clicked(); //Найти вверх
 
     void on_cancel_clicked(); //Отмена (закрытие диалога)
+
+    void on_lineEdit_query_textChanged(const QString &arg1);
 
 private:
     Ui::DialogFind *ui;
