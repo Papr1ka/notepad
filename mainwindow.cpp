@@ -46,7 +46,6 @@ MainWindow::~MainWindow()
     }
 }
 
-
 void MainWindow::recieveData(QString query, QTextDocument::FindFlags flags) //Строка для поиска и Флаги для поиска из диалога
 {
     if (!(flags & QTextDocument::FindFlag::FindCaseSensitively))
@@ -82,7 +81,6 @@ void MainWindow::setEnabledMenuActions(int modifiedFlags) //Изменить А�
         ui->Menu_Cut->setEnabled(!ui->Menu_Cut->isEnabled());
         ui->Menu_Copy->setEnabled(!ui->Menu_Copy->isEnabled());
         ui->Menu_Remove->setEnabled(!ui->Menu_Remove->isEnabled());
-        ui->Menu_Search_By_Bing->setEnabled(!ui->Menu_Search_By_Bing->isEnabled());
     }
 }
 
@@ -137,7 +135,6 @@ int MainWindow::checkSave() //проверка, модифицирован ли 
     }
     return QMessageBox::NoButton;
 }
-
 
 void MainWindow::closeEvent(QCloseEvent *event) //обработка сигнала на закрытие программы, защита от несохранённых изменений
 {
@@ -303,6 +300,12 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
         file.close();
 
         this->flags = this->flags & (FLAGS_SIZE - 4); //разблокировать обработку события изменения текста в TextEdt
+
+        cout << ui->textEdit->toPlainText().size() << endl;
+
+        this->on_textEdit_textChanged(); //Выставление правильных флагов
+        this->setWindowTitle(this->fileName + " - Блокнот");
+        this->flags = this->flags & (FLAGS_SIZE - 1);
     }
 }
 
@@ -359,7 +362,6 @@ void MainWindow::on_textEdit_textChanged() //Событие изменения �
     }
 }
 
-
 void MainWindow::on_Menu_Create_triggered() //Меню Создать
 {
     int result = this->checkSave(); //Защита от несохранённых изменений
@@ -397,12 +399,10 @@ void MainWindow::on_Menu_Create_triggered() //Меню Создать
     this->flags = this->flags & (FLAGS_SIZE - 4); //разблокировка обработки событий изменения текста в TextEdt
 }
 
-
 void MainWindow::on_Menu_Exit_triggered() //Меню Выход
 {
     QWidget::close();
 }
-
 
 void MainWindow::on_Menu_Fonts_triggered() //Меню Выбор Шрифта
 {
@@ -425,13 +425,11 @@ void MainWindow::on_Menu_Set_Black_Theme_triggered() //Меню Тёмная т�
     this->Settings->setNotebookTheme(NotebookSettings::Black);
 }
 
-
 void MainWindow::on_Menu_Set_White_Theme_triggered() //Меню Светлая тема
 {
     this->loadTheme(NotebookSettings::White);
     this->Settings->setNotebookTheme(NotebookSettings::White);
 }
-
 
 void MainWindow::on_textEdit_cursorPositionChanged() //Событие изменения положения курсора в TextEdit
 {
@@ -522,7 +520,6 @@ void MainWindow::on_Menu_Create_New_Window_triggered() //Меню Создать
     window->show();
 }
 
-
 void MainWindow::on_Menu_About_triggered() //Меню О Программе
 {
     DialogAbout *dialog = new DialogAbout;
@@ -535,47 +532,26 @@ void MainWindow::on_Menu_Redo_triggered() //Меню Отменить
     ui->textEdit->undo();
 }
 
-
 void MainWindow::on_Menu_Cut_triggered() //Меню Вырезать
 {
     ui->textEdit->cut();
 }
-
 
 void MainWindow::on_Menu_Copy_triggered() //Меню Копировать
 {
     ui->textEdit->copy();
 }
 
-
 void MainWindow::on_Menu_Paste_triggered() //Меню Вставить
 {
     ui->textEdit->paste(); //сделать проверку на символы Utf-8, картинка вставилась хреново
 }
-
 
 void MainWindow::on_Menu_Remove_triggered() //Меню Удалить
 {
     QTextCursor test = ui->textEdit->textCursor();
     test.removeSelectedText();
 }
-
-void MainWindow::on_Menu_Search_By_Bing_triggered() //Поиск При Помощи Bing
-{
-    QTextCursor test = ui->textEdit->textCursor();
-    QString query;
-    query = "https://www.bing.com/search?q=" + test.selectedText(); //Запрос
-    int length = query.length();
-    char charList[query.length()];
-
-    for (int i = 0; i < length; i++)
-    {
-        charList[i] = static_cast<char>(query.at(i).toLatin1()); //Преобразование запроса в Char list
-    }
-
-    ShellExecuteA(0, "open", charList, NULL, NULL, SW_SHOWDEFAULT); //Открыть браузер
-}
-
 
 void MainWindow::on_Menu_Search_triggered() //Меню Найти
 {
@@ -605,7 +581,6 @@ void MainWindow::on_Menu_Search_triggered() //Меню Найти
     dialog->show();
 }
 
-
 void MainWindow::on_Menu_Search_Further_triggered() //Меню Найти Далее
 {
     if (!this->findQuery.isEmpty()) //Если уже был некий непустой запрос и есть что искать
@@ -622,7 +597,6 @@ void MainWindow::on_Menu_Search_Further_triggered() //Меню Найти Дал
     }
 }
 
-
 void MainWindow::on_Menu_Search_Previously_triggered() //Меню Найти Ранее
 {
     if (!this->findQuery.isEmpty()) //Если уже был некий непустой запрос и есть что искать
@@ -638,7 +612,6 @@ void MainWindow::on_Menu_Search_Previously_triggered() //Меню Найти Р�
         this->on_Menu_Search_triggered(); //Если запроса не было и мы не знаем что искать, то запускаем Найти
     }
 }
-
 
 void MainWindow::on_Menu_Go_To_triggered() //Меню Перейти
 {
@@ -687,12 +660,10 @@ void MainWindow::on_Menu_Go_To_triggered() //Меню Перейти
 
 }
 
-
 void MainWindow::on_Menu_Select_All_triggered() //Меню Выделить Всё
 {
     ui->textEdit->selectAll();
 }
-
 
 void MainWindow::on_Menu_DateTime_triggered() //Меню Дата
 {

@@ -270,6 +270,7 @@
     <addaction name="separator"/>
     <addaction name="Menu_Select_All"/>
     <addaction name="Menu_DateTime"/>
+    <addaction name="action"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_2"/>
@@ -472,6 +473,11 @@
    </property>
    <property name="shortcut">
     <string>F5</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Показать скрытое</string>
    </property>
   </action>
  </widget>

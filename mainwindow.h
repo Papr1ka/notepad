@@ -76,8 +76,6 @@ private slots:
 
     void on_Menu_Remove_triggered(); //Меню удалить
 
-    void on_Menu_Search_By_Bing_triggered(); //Меню поиск с помощью Bing
-
     void on_Menu_Search_triggered(); //Меню найти
 
     void on_Menu_Search_Further_triggered(); //Меню найти далее
