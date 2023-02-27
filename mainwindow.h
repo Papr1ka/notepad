@@ -15,6 +15,7 @@
 #include <dialogfind.h>
 #include <QDateTime>
 #include <QLabel>
+#include <QDir>
 
 #include <limits.h>
 #include <iostream>
@@ -90,6 +91,12 @@ private slots:
 
     void on_textEdit_selectionChanged(); //Выделение изменено
 
+    void on_Menu_scale_plus_triggered(); //Меню увеличить масштаб
+
+    void on_Menu_scale_minus_triggered(); //Меню уменьшить масштаб
+
+    void on_Menu_scale_set_default_triggered(); //Меню установить масштаб по умолчанию
+
 private:
     Ui::MainWindow *ui;
 
@@ -101,6 +108,11 @@ private:
     QString findQuery = ""; //Последний поисковый запрос
 
     QLabel *stateString = nullptr; //Строка состояния
+
+    QString makeStateString(int row, int col, int selected); //составить строку состояния из значений
+    QString makeStateString(int row, int col); //составить строку состояний из значений ьез выделения
+
+    void scaleTo(int scale); //устанавливает масштаб в TextEdit в нужное значение
 
     void saveToTextFileUTF8(); //Сохранить текстовый файл с информацией из TextEdit
 
@@ -131,6 +143,8 @@ private:
     00100000: 32 :выделение не содержит элементов
     */
     unsigned __int8 flags = 2 + 16 + 32;
+
+    int scale = 100; //масштаб, проценты, умноженные на 100
 
     NotebookSettings *Settings; //Настройки блокнота
 

@@ -55,7 +55,7 @@ NotebookSettings::Themes NotebookSettings::getNotebookTheme() //Получить
     QString themeString = this->getNotebookSetting(NotebookSettings::Theme);
     bool isInt;
     int theme = themeString.toInt(&isInt);
-    if (themeString == "" or !isInt or theme > 1 or theme < 0) //Если белая и всё корректно
+    if (themeString.isEmpty() or !isInt or theme > 1 or theme < 0) //Если белая и всё корректно
     {
         return NotebookSettings::White;
     }
@@ -72,7 +72,7 @@ QFont NotebookSettings::getNotebookFont() //Получить значение ш
     QString fontString = this->getNotebookSetting(NotebookSettings::Font);
     QFont font;
     bool isFontConvertedCorrectly = font.fromString(fontString);
-    if (fontString == "" or !isFontConvertedCorrectly) //Если значение шрифта отсутствует или получено некорректно
+    if (fontString.isEmpty() or !isFontConvertedCorrectly) //Если значение шрифта отсутствует или получено некорректно
     {
         return QFont("Noto Sans", 18);
     }

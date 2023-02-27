@@ -16,7 +16,7 @@ public:
     {
         Font,
         Theme,
-        StateString
+        StateString,
     };
 
     enum Themes

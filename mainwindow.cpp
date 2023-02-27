@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     this->stateString = new QLabel; //строку стостояния в статусбар
-    stateString->setText("Стр 1 стлб 1");
+
     stateString->setFont(QFont("Segoe UI", 10));
     ui->statusBar->addPermanentWidget(stateString);
 
@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
         this->setStateStringActive(Settings->getNotebookStateString());
     }
     this->loadTheme(this->Settings->getNotebookTheme());
+
+    stateString->setText(this->makeStateString(1, 1)); //устанавливаем строку состояния
+
     this->setEnabledMenuActions(16 + 32); //По умолчанию кнопки меню не активны
 }
 
@@ -104,6 +107,17 @@ void MainWindow::loadTheme(NotebookSettings::Themes theme) //загрузка sh
     {
         this->stateString->setStyleSheet(styleSheet);
     }
+}
+
+
+QString MainWindow::makeStateString(int row, int col, int selected)
+{
+    return "Масштаб: " + QString::number(this->scale) + "% Стр " + QString::number(row) + " стлб " + QString::number(col) + " выделено " + QString::number(selected);
+}
+
+QString MainWindow::makeStateString(int row, int col)
+{
+    return "Масштаб: " + QString::number(this->scale) + "% Стр " + QString::number(row) + " стлб " + QString::number(col);
 }
 
 void MainWindow::saveToTextFileUTF8() //запись текста в UTF8 из TextEdit в файл по пути path
@@ -209,6 +223,8 @@ bool MainWindow::saveDocumentAs() //сохранить документ как t
     else
     {
         this->path = pretenderToPath;
+        QDir temp(pretenderToPath);
+        this->dirPath = temp.path();
         this->saveToTextFileUTF8(); //сохранение в файл
 
         this->fileName = path.section('/', -1); //отделение имени файла
@@ -273,6 +289,10 @@ void MainWindow::on_Menu_Open_triggered() //Меню Открыть файл
     {
         //подготовка
         this->path = pretenderToPath; //запоминание пути до файла
+
+        QDir temp(pretenderToPath);
+        this->dirPath = temp.path();
+
         this->flags = this->flags & (FLAGS_SIZE - 2); //убрать флаг документ создан
         this->flags = this->flags & (FLAGS_SIZE - 1); //убрать флаг документ изменён
         this->flags = this->flags | 4; //заблокировать обработку события изменения текста в TextEdt
@@ -435,20 +455,18 @@ void MainWindow::on_textEdit_cursorPositionChanged() //Событие измен
 {
     if (!(this->flags & 8)) //если событие разблокировано
     {
-        QString state; //Строка состояния, куда будут записаны данные
         QTextCursor cursor = ui->textEdit->textCursor(); //получение копии курсора TextEdit
         int col = cursor.columnNumber() + 1; //номер колонки
         int str = cursor.blockNumber() + 1; //номер строки
         int selected = abs(cursor.selectionEnd() - cursor.selectionStart()); //Количество выделенных символов
         if (selected != 0)
         {
-            state = "Стр " + QString::number(str) + " стлб " + QString::number(col) + "   " + QString::number(selected) + " выделено";;
+            this->stateString->setText(this->makeStateString(str, col, selected)); //изменить строку состояния
         }
         else
         {
-            state = "Стр " + QString::number(str) + " стлб " + QString::number(col);
+            this->stateString->setText(this->makeStateString(str, col)); //изменить строку состояния
         }
-        this->stateString->setText(state);
     }
 }
 
@@ -456,7 +474,6 @@ void MainWindow::on_textEdit_selectionChanged() //Изменение текущ�
 {
     if (!(this->flags & 8)) //если событие разблокировано
     {
-        QString state; //Строка состояния, куда будут записаны данные
         QTextCursor cursor = ui->textEdit->textCursor(); //получение копии курсора TextEdit
         int col = cursor.columnNumber() + 1; //номер колонки
         int str = cursor.blockNumber() + 1; //номер строки
@@ -466,9 +483,8 @@ void MainWindow::on_textEdit_selectionChanged() //Изменение текущ�
         {
             if (!lastSelectedCharactersCountIsNull)
             {
-                state = "Стр " + QString::number(str) + " стлб " + QString::number(col); //меняем строку состояния
                 this->lastSelectedCharactersCountIsNull = true;
-                this->stateString->setText(state);
+                this->stateString->setText(this->makeStateString(str, col)); //изменить строку состояния
             }
             if (!(flags & 32)) //если изменилось состояние выделения (было выделено > 0 символов), а теперь 0
             {
@@ -479,9 +495,7 @@ void MainWindow::on_textEdit_selectionChanged() //Изменение текущ�
         else //если выделены элементы
         {
             this->lastSelectedCharactersCountIsNull = false;
-            state = "Стр " + QString::number(str) + " стлб " + QString::number(col) + "   " + QString::number(selected) + " выделено"; //меняем строку состояния
-            this->stateString->setText(state);
-            this->stateString->repaint();
+            this->stateString->setText(this->makeStateString(str, col, selected)); //изменить строку состояния
 
             if (flags & 32) //если изменилось состояние выделения (было выделено > 0 символов), а теперь 0
             {
@@ -668,4 +682,46 @@ void MainWindow::on_Menu_Select_All_triggered() //Меню Выделить Вс
 void MainWindow::on_Menu_DateTime_triggered() //Меню Дата
 {
     ui->textEdit->insertPlainText(QDateTime::currentDateTime().toString("HH:mm dd.MM.yyyy"));
+}
+
+void MainWindow::on_Menu_scale_plus_triggered() //Меню увеличить масштаб
+{
+    if (this->scale <= 490)
+    {
+        this->scale += 10;
+        ui->textEdit->zoomIn(2);
+        this->on_textEdit_cursorPositionChanged();
+    }
+}
+
+
+void MainWindow::on_Menu_scale_minus_triggered() //Меню уменьшить масштаб
+{
+    cout << QString::number(ui->textEdit->font().pointSize()).toStdString() << endl;
+    if ((this->scale >= 20) & (ui->textEdit->font().pointSize() >= 3))
+    {
+        this->scale -= 10;
+        ui->textEdit->zoomOut(2);
+        this->on_textEdit_cursorPositionChanged(); //использование реализации отрисовки строки через событие изменение позиции курсора (в идеале помнить про это)
+    }
+}
+
+
+void MainWindow::on_Menu_scale_set_default_triggered() //Меню установить масштаб по умолчанию
+{
+    this->scaleTo(100);
+}
+
+void MainWindow::scaleTo(int newScale) //для использования необходимо гарантировать попадание в диапазон 10-500
+{
+    if (this->scale > newScale)
+    {
+        ui->textEdit->zoomOut((this->scale - newScale) / 5); //(120 - 100) / 10 * 2
+    }
+    else
+    {
+        ui->textEdit->zoomIn((newScale - this->scale) / 5);
+    }
+    this->scale = newScale;
+    this->on_textEdit_cursorPositionChanged();
 }

@@ -204,6 +204,7 @@
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
@@ -242,6 +243,15 @@
      <addaction name="Menu_Set_Black_Theme"/>
      <addaction name="Menu_Set_White_Theme"/>
     </widget>
+    <widget class="QMenu" name="menu_3">
+     <property name="title">
+      <string>Масштаб</string>
+     </property>
+     <addaction name="Menu_scale_plus"/>
+     <addaction name="Menu_scale_minus"/>
+     <addaction name="Menu_scale_set_default"/>
+    </widget>
+    <addaction name="menu_3"/>
     <addaction name="menu_theme"/>
     <addaction name="Menu_State_String_Visible_Change"/>
    </widget>
@@ -262,7 +272,6 @@
     <addaction name="Menu_Paste"/>
     <addaction name="Menu_Remove"/>
     <addaction name="separator"/>
-    <addaction name="Menu_Search_By_Bing"/>
     <addaction name="Menu_Search"/>
     <addaction name="Menu_Search_Further"/>
     <addaction name="Menu_Search_Previously"/>
@@ -270,7 +279,6 @@
     <addaction name="separator"/>
     <addaction name="Menu_Select_All"/>
     <addaction name="Menu_DateTime"/>
-    <addaction name="action"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menu_2"/>
@@ -278,7 +286,6 @@
    <addaction name="menu_view"/>
    <addaction name="menu"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="Menu_Create">
    <property name="text">
     <string>Создать</string>
@@ -416,14 +423,6 @@
     <string>Del</string>
    </property>
   </action>
-  <action name="Menu_Search_By_Bing">
-   <property name="text">
-    <string>Поиск с помощью Bing</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+E</string>
-   </property>
-  </action>
   <action name="Menu_Search">
    <property name="text">
     <string>Найти...</string>
@@ -475,9 +474,28 @@
     <string>F5</string>
    </property>
   </action>
-  <action name="action">
+  <action name="Menu_scale_plus">
    <property name="text">
-    <string>Показать скрытое</string>
+    <string>Увеличить</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+  </action>
+  <action name="Menu_scale_minus">
+   <property name="text">
+    <string>Уменьшить</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="Menu_scale_set_default">
+   <property name="text">
+    <string>Восстановить масштаб по умолчанию</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
  </widget>
